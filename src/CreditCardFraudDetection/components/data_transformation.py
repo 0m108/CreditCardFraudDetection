@@ -1,7 +1,12 @@
-from dataclasses import dataclass
 import os
 import sys
-
+import pandas as pd
+from dataclasses import dataclass
+from sklearn import preprocessing
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
+from sklearn.pipeline import Pipeline
 
 from src.CreditCardFraudDetection.exception import CustomException
 from src.CreditCardFraudDetection.logger import logging
@@ -19,7 +24,48 @@ class DataTransformation:
         This function is responsible for data transformation
         '''
         try:
-            pass
+            numerical_columns = []
+            
+            '''
+            # If categorical features are present
+            categorical_columns = []
+            '''
+            numerical_pipeline = Pipeline(steps=[
+                ("imputer", SimpleImputer(strategy='median'))
+            ])
+            '''
+            categorical_pipeline = Pipeline(steps=[
+                ("imputer", SimpleImputer(strategy = "most_frequent")),
+                ("one_hot_encoder", OneHotEncoder()),
+            ])
+            
+            logging.info(f"Categorical Columns:{categorical_columns}")
+            
+            '''
+            logging.info(f"Numerical Columns:{numerical_columns}")
+            
+            preprocessor = ColumnTransformer(
+                [
+                    ("numerical_pipeline",numerical_pipeline,numerical_columns),
+                    '''
+                    ("categorical_pipeline",categorical_pipeline,categorical_columns)
+                    '''
+                ]
+            )
+            
+            return preprocessor
+            
         except Exception as e:
             raise CustomException(e,sys)
+    def initiate_data_transformation(self,train_path,test_path):
+        try:
+            train_df = pd.read_csv(train_path)
+            test_df = pd.read_csv(test_path)
+            logging.info("Reading the train and test file")
+            
+            preprocessing_object = self.get_data_transformer_object()
+            
+            
+        except Exception as e:
+            raise CustomException(sys,e)
                
