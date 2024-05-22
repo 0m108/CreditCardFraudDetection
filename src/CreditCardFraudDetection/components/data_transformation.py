@@ -19,14 +19,14 @@ class DataTransformationConfig:
     
 class DataTransformation:
     def __init__(self):
-        data_transformation_config = DataTransformationConfig()
+        self.data_transformation_config = DataTransformationConfig()
     
     def get_preprocessor_obj(self, train_or_test_dataset_path):
         
         try:
             dataset = pd.read_csv(train_or_test_dataset_path)
             numerical_columns = list(dataset.columns)
-        
+            numerical_columns.pop()
             numerical_pipeline = Pipeline(steps=[
                 ("imputer",SimpleImputer(strategy='median')),
                 ("scalar",StandardScaler())
@@ -61,22 +61,21 @@ class DataTransformation:
             ## divide the test dataset to independent and dependent feature
             
 
-            input_feature_test_df=test_dataset.drop(columns=[target_column_name], axis=1)
+            input_features_test_df=test_dataset.drop(columns=[target_column_name], axis=1)
             target_feature_test_df=test_dataset[target_column_name]
             
             logging.info("Applying Preprocessing on training and test dataframe")
             
-            input_feature_train_arr=preprocessing_obj.fit_transform(input_features_train_df)
-            input_feature_test_arr=preprocessing_obj.transform(input_feature_test_df)
+            input_feature_train_arr = preprocessing_obj.fit_transform(input_features_train_df)
+            logging.info(f"input_feature_train_arr: {input_feature_train_arr}")
+            input_feature_test_arr = preprocessing_obj.transform(input_features_test_df)
             
-            train_arr = np.c_[
-                input_feature_train_arr, np.array(target_feature_train_df)
-            ]
+            train_arr = np.c_[input_feature_train_arr, np.array(target_feature_train_df)]
             test_arr = np.c_[input_feature_test_arr, np.array(target_feature_test_df)]
 
             save_object(
 
-                file_path=self.data_transformation_config.preprocessor_obj_file_path,
+                file_path=self.data_transformation_config.preprocessor_file_path,
                 obj=preprocessing_obj
             )
             logging.info(f"Saved preprocessing object")
