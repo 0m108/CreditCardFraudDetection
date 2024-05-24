@@ -21,6 +21,10 @@ source venv/bin/activate
 ```
 pip install -r requirements.txt
 ```
-
+## Usage
+To run the model follow this step:
+```
+python app.py
+```
 
 
